@@ -17,8 +17,19 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nis' => 'required|string|exists:users,nis',
+            'nis' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!User::where('nis', $value)->exists()) {
+                        $fail('NIS tidak ditemukan.');
+                    }
+                }
+            ],
             'captcha' => 'required|captcha'
+        ], [
+            'nis.required' => 'NIS wajib diisi.',
+            'captcha.captcha' => 'Captcha tidak valid.'
         ]);
     
         if ($validator->fails()) {
@@ -27,13 +38,10 @@ class AuthController extends Controller
     
         $user = User::where('nis', $request->nis)->first();
     
-        if ($user) {
-            Auth::login($user);
-            return redirect()->route('scan.qr');
-        }
-    
-        return back()->withErrors(['error' => 'NIS tidak ditemukan']);
+        Auth::login($user);
+        return redirect()->route('scan.qr.siswa');
     }
+    
     
 
     public function logout()

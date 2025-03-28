@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\PresensiSiswaController;
+use App\Http\Controllers\PresensiGuruController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 use Mews\Captcha\Facades\Captcha;
@@ -26,12 +27,18 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/scan-qr', [AbsensiController::class, 'scanQR'])->name('scan.qr');
-    Route::post('/absen', [AbsensiController::class, 'absen'])->name('absen');
-    Route::get('/absensi', [AbsensiController::class, 'list'])->name('absensi.list');
+    Route::get('/scan-qr-siswa', [PresensiSiswaController::class, 'scanQrSiswa'])->name('scan.qr.siswa');
+    Route::post('/presensi-siswa', [PresensiSiswaController::class, 'presensiSiswa'])->name('presensi.siswa');
+    Route::get('/presensi-list-siswa', [PresensiSiswaController::class, 'presensiListSiswa'])->name('presensi.list.siswa');
 });
 
-Route::get('/refresh-captcha', function() {
-    return response()->json(['captcha' => Captcha::img()]);
+Route::middleware('auth')->group(function () {
+    Route::get('/scan-qr-guru', [PresensiGuruController::class, 'scanQrGuru'])->name('scan.qr.guru');
+    Route::post('/presensi-guru', [PresensiGuruController::class, 'presensiGuru'])->name('presensi.guru');
+    Route::get('/presensi-list-guru', [PresensiGuruController::class, 'presensiListGuru'])->name('presensi.list.guru');
 });
+
+// Route::get('/refresh-captcha', function() {
+//     return response()->json(['captcha' => Captcha::img()]);
+// });
 
