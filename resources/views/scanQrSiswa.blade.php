@@ -23,34 +23,42 @@
     <h2 class="text-3xl text-black-700 text-center mb-4">
         Silahkan Scan QR di Sini
     </h2>
-    
+
     <div class="border border-dark rounded p-3 bg-black">
         <video id="preview" class="w-100"></video>
     </div>
+
+    <button id="startScan" class="btn btn-primary mt-3">Mulai Scan</button>
 
     <form id="scanForm" action="{{ route('presensi.siswa') }}" method="post" class="d-none">
         @csrf
         <input type="hidden" name="qr_code" id="qr_code">
     </form>
-
 </div>
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/gh/schmich/instascan-builds@master/instascan.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@latest"></script>
 <script>
-    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-    scanner.addListener('scan', function (content) {
-        document.getElementById('qr_code').value = content;
-        document.getElementById('scanForm').submit();
-    });
+    document.getElementById('startScan').addEventListener('click', function() {
+        let selectedDeviceId;
+        const codeReader = new ZXing.BrowserQRCodeReader();
 
-    Instascan.Camera.getCameras().then(cameras => {
-        if (cameras.length > 0) {
-            scanner.start(cameras[0]);
-        } else {
-            alert('No cameras found.');
-        }
-    }).catch(console.error);
+        codeReader.getVideoInputDevices()
+            .then(videoInputDevices => {
+                if (videoInputDevices.length > 0) {
+                    selectedDeviceId = videoInputDevices[0].deviceId;
+                    return codeReader.decodeFromVideoDevice(selectedDeviceId, 'preview', (result, err) => {
+                        if (result) {
+                            document.getElementById('qr_code').value = result.text;
+                            document.getElementById('scanForm').submit();
+                        }
+                    });
+                } else {
+                    alert('Kamera tidak ditemukan.');
+                }
+            })
+            .catch(err => console.error(err));
+    });
 </script>
 @endpush
