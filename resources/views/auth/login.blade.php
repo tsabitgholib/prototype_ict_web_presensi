@@ -1,4 +1,5 @@
 @extends('layouts.app')
+
 @section('content')
 <div class="d-flex justify-content-center align-items-center vh-100 bg-light">
     <div class="modal show d-block shadow-lg rounded-4" tabindex="-1">
@@ -6,10 +7,7 @@
             <div class="modal-content border-0">
                 <div class="modal-body text-center p-5">
                     <!-- Logo -->
-                    <div class="d-flex justify-content-center">
-                        <img src="{{ asset('images/logo1.png') }}" alt="Logo" class="mb-3" style="width: 150px; height: auto;">
-                    </div>
-                    
+                    <img src="{{ asset('/prototype/prototype_ict_web_presensi/images/logo1.png') }}" alt="Logo" class="mb-3" style="width: 150px; height: auto;">
 
                     <h4 class="mb-4 text-dark">Selamat Datang</h4>
 
@@ -49,9 +47,9 @@
                     </form>
                 </div>
                 
-                <div class="modal-footer justify-content-center w-100 bg-white border-0">
-                    <small class="text-muted">© {{ date('Y') }} PT. Inovasi Cipta Teknologi</small>
-                </div>                
+                <div class="modal-footer text-center w-100 bg-white border-0">
+                    <small class="text-muted">© {{ date('Y') }} Aplikasi Absensi QR</small>
+                </div>
             </div>
         </div>
     </div>
