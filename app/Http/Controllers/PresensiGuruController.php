@@ -35,12 +35,12 @@ class PresensiGuruController extends Controller
     {
         $user = auth()->user();
     
-        $sudahAbsen = Presensi::where('user_id', $user->id)
+        $sudahPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('created_at', today())
             ->exists();
     
-        if ($sudahAbsen) {
-            return redirect()->back()->with('warning', $user->name . ', Anda sudah absen hari ini!');
+        if ($sudahPresensi) {
+            return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
         }
     
         Presensi::create([

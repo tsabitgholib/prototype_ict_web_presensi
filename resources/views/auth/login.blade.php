@@ -7,7 +7,7 @@
                 <div class="modal-body text-center p-5">
                     <!-- Logo -->
                     <div class="d-flex justify-content-center">
-                        <img src="{{ asset('images/logo1.png') }}" alt="Logo" class="mb-3" style="width: 150px; height: auto;">
+                        <img src="{{ asset('/images/logo1.png') }}" alt="Logo" class="mb-3" style="width: 150px; height: auto;">
                     </div>
                     
 

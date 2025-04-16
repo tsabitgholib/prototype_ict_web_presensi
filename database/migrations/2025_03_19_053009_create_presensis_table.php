@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('qr_code');
+            $table->decimal('latitude', 10, 8);  // Untuk menyimpan latitude
+            $table->decimal('longitude', 11, 8); // Untuk menyimpan longitude
             $table->timestamps();
         });
     }

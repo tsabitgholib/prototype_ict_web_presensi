@@ -3,6 +3,7 @@
 use App\Http\Controllers\PresensiSiswaController;
 use App\Http\Controllers\PresensiGuruController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PresensiMapController;
 use Illuminate\Support\Facades\Route;
 use Mews\Captcha\Facades\Captcha;
 
@@ -36,6 +37,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/scan-qr-guru', [PresensiGuruController::class, 'scanQrGuru'])->name('scan.qr.guru');
     Route::post('/presensi-guru', [PresensiGuruController::class, 'presensiGuru'])->name('presensi.guru');
     Route::get('/presensi-list-guru', [PresensiGuruController::class, 'presensiListGuru'])->name('presensi.list.guru');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/presensi-map', [PresensiMapController::class, 'create'])->name('presensi.create');
+    Route::post('/presensi-map', [PresensiMapController::class, 'store'])->name('presensi.store');
 });
 
 // Route::get('/refresh-captcha', function() {
