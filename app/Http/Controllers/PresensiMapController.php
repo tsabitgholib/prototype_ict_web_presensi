@@ -7,10 +7,10 @@ use App\Models\Presensi;
 
 class PresensiMapController extends Controller
 {
-    // protected $latitudeSekolah = -6.9677;
-    // protected $longitudeSekolah = 110.2458;
-    protected $latitudeSekolah = -6.98749480;
-    protected $longitudeSekolah = 110.43590270;
+    protected $latitudeSekolah = -6.9677;
+    protected $longitudeSekolah = 110.2458;
+    // protected $latitudeSekolah = -6.98749480;
+    // protected $longitudeSekolah = 110.43590270;
     protected $radiusMax = 100;
 
     public function create()
@@ -37,9 +37,9 @@ class PresensiMapController extends Controller
             ->whereDate('created_at', today())
             ->exists();
     
-        if ($sudahPresensi) {
-            return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
-        }
+        // if ($sudahPresensi) {
+        //     return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
+        // }
     
 
         if ($jarak > $this->radiusMax) {

@@ -54,7 +54,6 @@
                 .bindPopup("Lokasi Anda")
                 .openPopup();
 
-            // Menyimpan koordinat ke form tersembunyi
             document.getElementById('latitude').value = lat;
             document.getElementById('longitude').value = lon;
         });
@@ -62,7 +61,6 @@
         alert("Geolocation tidak didukung oleh browser ini.");
     }
 
-    // Fungsi untuk mengambil lokasi dan submit form
     function getLocationAndSubmitForm() {
         const latitude = document.getElementById('latitude').value;
         const longitude = document.getElementById('longitude').value;
