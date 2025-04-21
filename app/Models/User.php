@@ -23,6 +23,7 @@ class User extends Authenticatable
         'nis',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -45,6 +46,6 @@ class User extends Authenticatable
     ];
 
     public function absensis():HasMany{
-        return $this->hasMany((Absensi::class));
+        return $this->hasMany((Presensi::class));
     }
 }

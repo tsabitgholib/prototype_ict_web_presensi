@@ -36,14 +36,13 @@ class PresensiMapController extends Controller
         $sudahPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('created_at', today())
             ->exists();
-    
-        // if ($sudahPresensi) {
-        //     return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
-        // }
-    
 
         if ($jarak > $this->radiusMax) {
-            return redirect()->route('presensi.create')->with('error', 'Anda terlalu jauh dari lokasi presensi!');
+            return redirect()->route('presensi.create')->with('warning', 'Anda terlalu jauh dari lokasi presensi!');
+        }
+
+        if ($sudahPresensi) {
+            return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
         }
 
         Presensi::create([

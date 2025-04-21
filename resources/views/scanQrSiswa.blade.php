@@ -25,32 +25,91 @@
     </h2>
     
     <div class="border border-dark rounded p-3 bg-black">
-        <video id="preview" class="w-100"></video>
+        <div id="reader" style="width: 500px"></div>
     </div>
 
     <form id="scanForm" action="{{ route('presensi.siswa') }}" method="post" class="d-none">
         @csrf
         <input type="hidden" name="qr_code" id="qr_code">
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
     </form>
-
 </div>
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/gh/schmich/instascan-builds@master/instascan.min.js"></script>
-<script>
-    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-    scanner.addListener('scan', function (content) {
-        document.getElementById('qr_code').value = content;
-        document.getElementById('scanForm').submit();
-    });
+<script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
 
-    Instascan.Camera.getCameras().then(cameras => {
-        if (cameras.length > 0) {
-            scanner.start(cameras[0]);
+<script>
+    const html5QrCode = new Html5Qrcode("reader");
+
+    function startScanner() {
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: 250 },
+            qrCodeMessage => {
+                document.getElementById('qr_code').value = qrCodeMessage;
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        document.getElementById('latitude').value = position.coords.latitude;
+                        document.getElementById('longitude').value = position.coords.longitude;
+
+                        // Setelah data lengkap, submit form
+                        document.getElementById('scanForm').submit();
+                    }, function(error) {
+                        alert('Gagal mendapatkan lokasi: ' + error.message);
+                    });
+                } else {
+                    alert("Geolocation tidak didukung oleh browser ini.");
+                }
+            },
+            errorMessage => {
+                // Optional: console.log(errorMessage);
+            }
+        ).catch(err => {
+            alert("Gagal memulai kamera: " + err);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        startScanner();
+    });
+</script>
+
+<!-- (Optional) Map code tetap kalau ingin dipakai -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+
+            var map = L.map('map').setView([lat, lon], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup("Lokasi Anda")
+                .openPopup();
+
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lon;
+        });
+    }
+
+    function getLocationAndSubmitForm() {
+        const latitude = document.getElementById('latitude').value;
+        const longitude = document.getElementById('longitude').value;
+
+        if (latitude && longitude) {
+            document.getElementById('attendanceForm').submit();
         } else {
-            alert('No cameras found.');
+            alert('Lokasi tidak ditemukan!');
         }
-    }).catch(console.error);
+    }
 </script>
 @endpush
