@@ -38,9 +38,9 @@ class PresensiSiswaController extends Controller
             ->whereDate('created_at', today())
             ->exists();
 
-        // if ($jarak > $this->radiusMax) {
-        //     return redirect()->back()->with('warning', 'Anda terlalu jauh dari lokasi presensi!');
-        // }
+        if ($jarak > $this->radiusMax) {
+            return redirect()->back()->with('warning', 'Anda terlalu jauh dari lokasi presensi!');
+        }
 
         if ($sudahPresensi) {
             return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');

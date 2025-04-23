@@ -28,6 +28,7 @@
         <div id="reader" style="width: 500px"></div>
     </div>
 
+    {{-- Form tersembunyi untuk submit hasil scan --}}
     <form id="scanForm" action="{{ route('presensi.siswa') }}" method="post" class="d-none">
         @csrf
         <input type="hidden" name="qr_code" id="qr_code">
@@ -38,78 +39,60 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
+    <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
 
-<script>
-    const html5QrCode = new Html5Qrcode("reader");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const html5QrCode = new Html5Qrcode("reader");
+            let isScanned = false;
 
-    function startScanner() {
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            qrCodeMessage => {
-                document.getElementById('qr_code').value = qrCodeMessage;
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                async qrCodeMessage => {
+                    if (isScanned) return;
+                    isScanned = true;
 
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(position) {
-                        document.getElementById('latitude').value = position.coords.latitude;
-                        document.getElementById('longitude').value = position.coords.longitude;
+                    console.log("QR Code detected: ", qrCodeMessage);
 
-                        // Setelah data lengkap, submit form
-                        document.getElementById('scanForm').submit();
-                    }, function(error) {
-                        alert('Gagal mendapatkan lokasi: ' + error.message);
-                    });
-                } else {
-                    alert("Geolocation tidak didukung oleh browser ini.");
+                    if (!qrCodeMessage) {
+                        alert('QR tidak terbaca!');
+                        isScanned = false;
+                        return;
+                    }
+
+                    document.getElementById('qr_code').value = qrCodeMessage;
+
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(async function (position) {
+                            document.getElementById('latitude').value = position.coords.latitude;
+                            document.getElementById('longitude').value = position.coords.longitude;
+
+                            console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
+
+                            await html5QrCode.stop().then(() => {
+                                console.log("Scanner stopped. Submit form...");
+                                document.getElementById('scanForm').submit();
+                            }).catch((err) => {
+                                alert("Gagal menghentikan scanner: " + err);
+                                isScanned = false;
+                            });
+                        }, function (error) {
+                            alert('Gagal mendapatkan lokasi: ' + error.message);
+                            isScanned = false;
+                        });
+                    } else {
+                        alert("Geolocation tidak didukung oleh browser.");
+                        isScanned = false;
+                    }
+                },
+                errorMessage => {
+                    // Bisa log jika ingin lihat error QR tidak terbaca
+                    // console.log("QR Scanner error: ", errorMessage);
                 }
-            },
-            errorMessage => {
-                // Optional: console.log(errorMessage);
-            }
-        ).catch(err => {
-            alert("Gagal memulai kamera: " + err);
+            ).catch(err => {
+                alert("Gagal memulai kamera: " + err);
+            });
         });
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        startScanner();
-    });
-</script>
-
-<!-- (Optional) Map code tetap kalau ingin dipakai -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            var lat = position.coords.latitude;
-            var lon = position.coords.longitude;
-
-            var map = L.map('map').setView([lat, lon], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(map);
-
-            L.marker([lat, lon]).addTo(map)
-                .bindPopup("Lokasi Anda")
-                .openPopup();
-
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lon;
-        });
-    }
-
-    function getLocationAndSubmitForm() {
-        const latitude = document.getElementById('latitude').value;
-        const longitude = document.getElementById('longitude').value;
-
-        if (latitude && longitude) {
-            document.getElementById('attendanceForm').submit();
-        } else {
-            alert('Lokasi tidak ditemukan!');
-        }
-    }
-</script>
+    </script>
 @endpush
