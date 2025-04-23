@@ -39,7 +39,8 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
+    {{-- Gunakan CDN HTML5 QR Code scanner --}}
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {

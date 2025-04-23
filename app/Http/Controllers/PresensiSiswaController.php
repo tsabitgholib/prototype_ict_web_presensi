@@ -9,10 +9,10 @@ use Illuminate\Support\Facades\Auth;
 class PresensiSiswaController extends Controller
 {
 
-    // protected $latitudeSekolah = -6.9677;
-    // protected $longitudeSekolah = 110.2458;
-    protected $latitudeSekolah = -6.98749480;
-    protected $longitudeSekolah = 110.43590270;
+    protected $latitudeSekolah = -6.9677;
+    protected $longitudeSekolah = 110.2458;
+    // protected $latitudeSekolah = -6.98749480;
+    // protected $longitudeSekolah = 110.43590270;
     protected $radiusMax = 100;
 
     public function scanQrSiswa()
