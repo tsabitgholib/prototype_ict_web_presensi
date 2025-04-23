@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Presensi;
 use Illuminate\Http\Request;
+use GeoIP;
 use Illuminate\Support\Facades\Auth;
 
 class PresensiSiswaController extends Controller
@@ -24,16 +25,49 @@ class PresensiSiswaController extends Controller
     {
         $user = auth()->user();
 
-        $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-        ]);
+        // $request->validate([
+        //     'latitude' => 'required|numeric',
+        //     'longitude' => 'required|numeric',
+        // ]);
 
-        $latitudeUser = $request->latitude;
-        $longitudeUser = $request->longitude;
+        // $latitudeUser = $request->latitude;
+        // $longitudeUser = $request->longitude;
 
-        $jarak = $this->haversine($this->latitudeSekolah, $this->longitudeSekolah, $latitudeUser, $longitudeUser);
+        // $jarak = $this->haversine($this->latitudeSekolah, $this->longitudeSekolah, $latitudeUser, $longitudeUser);
     
+        // $sudahPresensi = Presensi::where('user_id', $user->id)
+        //     ->whereDate('created_at', today())
+        //     ->exists();
+
+        // // if ($jarak > $this->radiusMax) {
+        // //     return redirect()->back()->with('warning', 'Anda terlalu jauh dari lokasi presensi!');
+        // // }
+
+        // if ($sudahPresensi) {
+        //     return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
+        // }
+        
+        // Presensi::create([
+        //     'user_id' => $user->id,
+        //     'qr_code' => $request->qr_code,
+        //     'latitude' => $request->latitude,
+        //     'longitude' => $request->longitude,
+        //     'created_at' => now(),
+        // ]);
+    
+        // return redirect()->route('presensi.list.siswa')->with('success', 'Presensi berhasil!');
+
+
+        // GEO IP
+        $qr_code = $request->input('qr_code');
+
+        $location = geoip()->getLocation();
+
+        $latitude = $location->lat;
+        $longitude = $location->lon;
+
+        $jarak = $this->haversine($this->latitudeSekolah, $this->longitudeSekolah, $latitude, $longitude);
+
         $sudahPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('created_at', today())
             ->exists();
@@ -42,19 +76,18 @@ class PresensiSiswaController extends Controller
         //     return redirect()->back()->with('warning', 'Anda terlalu jauh dari lokasi presensi!');
         // }
 
-        if ($sudahPresensi) {
-            return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
-        }
-        
-        Presensi::create([
-            'user_id' => $user->id,
-            'qr_code' => $request->qr_code,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-            'created_at' => now(),
+        // if ($sudahPresensi) {
+        //     return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
+        // }
+
+        $presensi = new Presensi([
+            'qr_code' => $qr_code,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
         ]);
-    
-        return redirect()->route('presensi.list.siswa')->with('success', 'Presensi berhasil!');
+        $presensi->save();
+
+        return redirect()->route('presensi.siswa')->with('success', 'Presensi berhasil!');
     }
     
 

@@ -28,7 +28,6 @@
         <div id="reader" style="width: 500px"></div>
     </div>
 
-    {{-- Form tersembunyi untuk submit hasil scan --}}
     <form id="scanForm" action="{{ route('presensi.siswa') }}" method="post" class="d-none">
         @csrf
         <input type="hidden" name="qr_code" id="qr_code">
@@ -42,57 +41,99 @@
     <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const html5QrCode = new Html5Qrcode("reader");
-            let isScanned = false;
+        // document.addEventListener("DOMContentLoaded", function () {
+        //     const html5QrCode = new Html5Qrcode("reader");
+        //     let isScanned = false;
 
-            html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                async qrCodeMessage => {
-                    if (isScanned) return;
-                    isScanned = true;
+        //     html5QrCode.start(
+        //         { facingMode: "environment" },
+        //         { fps: 10, qrbox: 250 },
+        //         async qrCodeMessage => {
+        //             if (isScanned) return;
+        //             isScanned = true;
 
-                    console.log("QR Code detected: ", qrCodeMessage);
+        //             console.log("QR Code detected: ", qrCodeMessage);
 
-                    if (!qrCodeMessage) {
-                        alert('QR tidak terbaca!');
-                        isScanned = false;
-                        return;
-                    }
+        //             if (!qrCodeMessage) {
+        //                 alert('QR tidak terbaca!');
+        //                 isScanned = false;
+        //                 return;
+        //             }
 
-                    document.getElementById('qr_code').value = qrCodeMessage;
+        //             document.getElementById('qr_code').value = qrCodeMessage;
 
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(async function (position) {
-                            document.getElementById('latitude').value = position.coords.latitude;
-                            document.getElementById('longitude').value = position.coords.longitude;
+        //             if (navigator.geolocation) {
+        //                 navigator.geolocation.getCurrentPosition(async function (position) {
+        //                     document.getElementById('latitude').value = position.coords.latitude;
+        //                     document.getElementById('longitude').value = position.coords.longitude;
 
-                            console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
+        //                     console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
 
-                            await html5QrCode.stop().then(() => {
-                                console.log("Scanner stopped. Submit form...");
-                                document.getElementById('scanForm').submit();
-                            }).catch((err) => {
-                                alert("Gagal menghentikan scanner: " + err);
-                                isScanned = false;
-                            });
-                        }, function (error) {
-                            alert('Gagal mendapatkan lokasi: ' + error.message);
-                            isScanned = false;
-                        });
-                    } else {
-                        alert("Geolocation tidak didukung oleh browser.");
-                        isScanned = false;
-                    }
-                },
-                errorMessage => {
-                    // Bisa log jika ingin lihat error QR tidak terbaca
-                    // console.log("QR Scanner error: ", errorMessage);
-                }
-            ).catch(err => {
-                alert("Gagal memulai kamera: " + err);
+        //                     await html5QrCode.stop().then(() => {
+        //                         //console.log("Scanner stopped. Submit form...");
+        //                         document.getElementById('scanForm').submit();
+        //                     }).catch((err) => {
+        //                         alert("Gagal menghentikan scanner: " + err);
+        //                         isScanned = false;
+        //                     });
+        //                 }, function (error) {
+        //                     alert('Gagal mendapatkan lokasi: ' + error.message);
+        //                     isScanned = false;
+        //                 });
+        //             } else {
+        //                 alert("Geolocation tidak didukung oleh browser.");
+        //                 isScanned = false;
+        //             }
+        //         },
+        //         errorMessage => {
+        //             // console.log("error: ", errorMessage);
+        //         }
+        //     ).catch(err => {
+        //         alert("Gagal memulai kamera: " + err);
+        //     });
+        // });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+    const html5QrCode = new Html5Qrcode("reader");
+    let isScanned = false;
+
+    html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        async qrCodeMessage => {
+            if (isScanned) return;
+            isScanned = true;
+
+            console.log("QR Code detected: ", qrCodeMessage);
+
+            if (!qrCodeMessage) {
+                alert('QR tidak terbaca!');
+                isScanned = false;
+                return;
+            }
+
+            document.getElementById('qr_code').value = qrCodeMessage;
+
+            // Hapus bagian geolocation karena kita akan menggunakan GeoIP
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+
+            // Submit form langsung setelah scan
+            await html5QrCode.stop().then(() => {
+                document.getElementById('scanForm').submit();
+            }).catch((err) => {
+                alert("Gagal menghentikan scanner: " + err);
+                isScanned = false;
             });
-        });
+        },
+        errorMessage => {
+            // console.log("error: ", errorMessage);
+        }
+    ).catch(err => {
+        alert("Gagal memulai kamera: " + err);
+    });
+});
+
     </script>
 @endpush
