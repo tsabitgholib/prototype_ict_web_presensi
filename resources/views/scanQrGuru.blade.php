@@ -91,14 +91,13 @@
     const html5QrCode = new Html5Qrcode("reader");
     let isScanned = false;
 
-    // Start scanning
     html5QrCode.start(
-        { facingMode: "environment" }, // Use environment camera (back camera)
-        { fps: 10, qrbox: 250 }, // Set frames per second and QR box size
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
         async qrCodeMessage => {
-            if (isScanned) return; // Prevent duplicate scanning
-            isScanned = true;
+            if (isScanned) return;
 
+            isScanned = true;
             console.log("QR Code detected: ", qrCodeMessage);
 
             if (!qrCodeMessage) {
@@ -116,24 +115,58 @@
 
                     console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
 
-                    // Automatically submit the form after scanning
-                    document.getElementById('scanForm').submit();
+                    await html5QrCode.stop().then(() => {
+                        // Submit form dan mulai scan kembali setelah form dikirim
+                        document.getElementById('scanForm').submit();
+                        
+                        // Setelah form disubmit, reset isScanned dan mulai scan lagi
+                        setTimeout(() => {
+                            isScanned = false;
+                            html5QrCode.start(
+                                { facingMode: "environment" },
+                                { fps: 10, qrbox: 250 },
+                                async (newQrCodeMessage) => {
+                                    if (isScanned) return;
 
-                    // Reset the scanner to scan again without waiting for the camera to move
-                    isScanned = false;
-                    html5QrCode.start(
-                        { facingMode: "environment" },
-                        { fps: 10, qrbox: 250 },
-                        async nextQrCodeMessage => {
-                            if (!isScanned && nextQrCodeMessage) {
-                                document.getElementById('qr_code').value = nextQrCodeMessage;
-                                document.getElementById('scanForm').submit();
-                            }
-                        },
-                        errorMessage => {
-                            // Handle any scanning errors
-                        }
-                    );
+                                    isScanned = true;
+                                    console.log("QR Code detected: ", newQrCodeMessage);
+
+                                    if (!newQrCodeMessage) {
+                                        alert('QR tidak terbaca!');
+                                        isScanned = false;
+                                        return;
+                                    }
+
+                                    document.getElementById('qr_code').value = newQrCodeMessage;
+
+                                    if (navigator.geolocation) {
+                                        navigator.geolocation.getCurrentPosition(async function (position) {
+                                            document.getElementById('latitude').value = position.coords.latitude;
+                                            document.getElementById('longitude').value = position.coords.longitude;
+
+                                            console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
+
+                                            await html5QrCode.stop().then(() => {
+                                                document.getElementById('scanForm').submit();
+                                            }).catch((err) => {
+                                                alert("Gagal menghentikan scanner: " + err);
+                                                isScanned = false;
+                                            });
+                                        }, function (error) {
+                                            alert('Gagal mendapatkan lokasi: ' + error.message);
+                                            isScanned = false;
+                                        });
+                                    } else {
+                                        alert("Geolocation tidak didukung oleh browser.");
+                                        isScanned = false;
+                                    }
+                                }
+                            );
+                        }, 1000); // Beri waktu sedikit untuk memastikan form ter-submit
+                    }).catch((err) => {
+                        alert("Gagal menghentikan scanner: " + err);
+                        isScanned = false;
+                    });
                 }, function (error) {
                     alert('Gagal mendapatkan lokasi: ' + error.message);
                     isScanned = false;
@@ -144,8 +177,7 @@
             }
         },
         errorMessage => {
-            // Handle scanner errors
-            console.log("Error scanning: ", errorMessage);
+            // console.log("error: ", errorMessage);
         }
     ).catch(err => {
         alert("Gagal memulai kamera: " + err);
