@@ -28,7 +28,7 @@
         <div id="reader" style="width: 500px"></div>
     </div>
 
-    <form id="scanForm" action="{{ route('presensi.guru') }}" method="post" class="d-none">
+    <form id="scanForm" class="d-none">
         @csrf
         <input type="hidden" name="qr_code" id="qr_code">
         <input type="hidden" name="latitude" id="latitude">
