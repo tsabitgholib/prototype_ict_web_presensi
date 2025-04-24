@@ -50,7 +50,7 @@
                 { fps: 10, qrbox: 250 },
                 async qrCodeMessage => {
                     if (isScanned) return;
-                    isScanned = false;
+                    isScanned = true;
 
                     console.log("QR Code detected: ", qrCodeMessage);
 
