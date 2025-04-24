@@ -25,12 +25,14 @@
     </h2>
     
     <div class="border border-dark rounded p-3 bg-black">
-        <video id="preview" class="w-100"></video>
+        <div id="reader" style="width: 500px"></div>
     </div>
 
     <form id="scanForm" action="{{ route('presensi.guru') }}" method="post" class="d-none">
         @csrf
         <input type="hidden" name="qr_code" id="qr_code">
+        <input type="hidden" name="latitude" id="latitude">
+        <input type="hidden" name="longitude" id="longitude">
     </form>
 
 <div class="container mt-4">
