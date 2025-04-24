@@ -50,7 +50,7 @@
                 { fps: 10, qrbox: 250 },
                 async qrCodeMessage => {
                     if (isScanned) return;
-                    isScanned = true;
+                    isScanned = false;
 
                     console.log("QR Code detected: ", qrCodeMessage);
 
@@ -70,8 +70,6 @@
                             console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
 
                             await html5QrCode.stop().then(() => {
-                                // Mengatur ulang status pemindaian
-                                isScanned = false; // Reset supaya bisa scan lagi
                                 //console.log("Scanner stopped. Submit form...");
                                 document.getElementById('scanForm').submit();
                             }).catch((err) => {
@@ -94,7 +92,6 @@
                 alert("Gagal memulai kamera: " + err);
             });
         });
-
 
 
 //     document.addEventListener("DOMContentLoaded", function () {
