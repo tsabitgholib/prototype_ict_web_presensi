@@ -28,7 +28,7 @@
         <div id="reader" style="width: 500px"></div>
     </div>
 
-    <form id="scanForm" class="d-none">
+    <form id="scanForm" action="{{ route('presensi.guru') }}" method="post" class="d-none">
         @csrf
         <input type="hidden" name="qr_code" id="qr_code">
         <input type="hidden" name="latitude" id="latitude">
@@ -84,88 +84,74 @@
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const html5QrCode = new Html5Qrcode("reader");
-        let isScanned = false;
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const html5QrCode = new Html5Qrcode("reader");
+    let isScanned = false;
 
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            async qrCodeMessage => {
-                if (isScanned) return;
-                isScanned = true;
+    // Start scanning
+    html5QrCode.start(
+        { facingMode: "environment" }, // Use environment camera (back camera)
+        { fps: 10, qrbox: 250 }, // Set frames per second and QR box size
+        async qrCodeMessage => {
+            if (isScanned) return; // Prevent duplicate scanning
+            isScanned = true;
 
-                if (!qrCodeMessage) {
-                    Swal.fire("QR tidak terbaca!");
-                    isScanned = false;
-                    return;
-                }
+            console.log("QR Code detected: ", qrCodeMessage);
 
-                document.getElementById('qr_code').value = qrCodeMessage;
-
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(async function (position) {
-                        document.getElementById('latitude').value = position.coords.latitude;
-                        document.getElementById('longitude').value = position.coords.longitude;
-
-                        const formData = new FormData(document.getElementById('scanForm'));
-
-                        try {
-                            const response = await fetch("{{ route('presensi.guru') }}", {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: formData
-                            });
-
-                            const result = await response.json();
-
-                            if (result.success) {
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil!',
-                                    text: result.message || 'Presensi berhasil.',
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-                            } else {
-                                Swal.fire({
-                                    icon: 'warning',
-                                    title: 'Peringatan!',
-                                    text: result.message || 'Presensi gagal.',
-                                    timer: 2000,
-                                    showConfirmButton: false
-                                });
-                            }
-                        } catch (err) {
-                            Swal.fire("Terjadi kesalahan saat mengirim data.");
-                            console.error(err);
-                        }
-
-                        // Reset agar scanner bisa baca QR lagi setelah 2 detik
-                        setTimeout(() => {
-                            isScanned = false;
-                        }, 2000);
-                    }, function (error) {
-                        Swal.fire('Gagal mendapatkan lokasi: ' + error.message);
-                        isScanned = false;
-                    });
-                } else {
-                    Swal.fire("Geolocation tidak didukung oleh browser.");
-                    isScanned = false;
-                }
-            },
-            errorMessage => {
-                // Bisa tampilkan log error scanning jika perlu
+            if (!qrCodeMessage) {
+                alert('QR tidak terbaca!');
+                isScanned = false;
+                return;
             }
-        ).catch(err => {
-            Swal.fire("Gagal memulai kamera: " + err);
-        });
+
+            document.getElementById('qr_code').value = qrCodeMessage;
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async function (position) {
+                    document.getElementById('latitude').value = position.coords.latitude;
+                    document.getElementById('longitude').value = position.coords.longitude;
+
+                    console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
+
+                    // Automatically submit the form after scanning
+                    document.getElementById('scanForm').submit();
+
+                    // Reset the scanner to scan again without waiting for the camera to move
+                    isScanned = false;
+                    html5QrCode.start(
+                        { facingMode: "environment" },
+                        { fps: 10, qrbox: 250 },
+                        async nextQrCodeMessage => {
+                            if (!isScanned && nextQrCodeMessage) {
+                                document.getElementById('qr_code').value = nextQrCodeMessage;
+                                document.getElementById('scanForm').submit();
+                            }
+                        },
+                        errorMessage => {
+                            // Handle any scanning errors
+                        }
+                    );
+                }, function (error) {
+                    alert('Gagal mendapatkan lokasi: ' + error.message);
+                    isScanned = false;
+                });
+            } else {
+                alert("Geolocation tidak didukung oleh browser.");
+                isScanned = false;
+            }
+        },
+        errorMessage => {
+            // Handle scanner errors
+            console.log("Error scanning: ", errorMessage);
+        }
+    ).catch(err => {
+        alert("Gagal memulai kamera: " + err);
     });
+});
+
+
 </script>
 @endpush
