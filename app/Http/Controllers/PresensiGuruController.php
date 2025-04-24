@@ -67,7 +67,7 @@ class PresensiGuruController extends Controller
         ]);
     
     
-        return redirect()->back()->with('success', 'Presensi berhasil! ' . 'Nama Siswa : ' . $user->name);
+        return redirect()->back()->with('success', 'Presensi berhasil! ' . 'Nama Siswa : ' . $request->qr_code);
     }
     
     

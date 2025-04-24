@@ -82,20 +82,60 @@
 @endsection
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/gh/schmich/instascan-builds@master/instascan.min.js"></script>
-<script>
-    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-    scanner.addListener('scan', function (content) {
-        document.getElementById('qr_code').value = content;
-        document.getElementById('scanForm').submit();
-    });
+    <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
 
-    Instascan.Camera.getCameras().then(cameras => {
-        if (cameras.length > 0) {
-            scanner.start(cameras[0]);
-        } else {
-            alert('No cameras found.');
-        }
-    }).catch(console.error);
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const html5QrCode = new Html5Qrcode("reader");
+            let isScanned = false;
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                async qrCodeMessage => {
+                    if (isScanned) return;
+                    isScanned = true;
+
+                    console.log("QR Code detected: ", qrCodeMessage);
+
+                    if (!qrCodeMessage) {
+                        alert('QR tidak terbaca!');
+                        isScanned = false;
+                        return;
+                    }
+
+                    document.getElementById('qr_code').value = qrCodeMessage;
+
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(async function (position) {
+                            document.getElementById('latitude').value = position.coords.latitude;
+                            document.getElementById('longitude').value = position.coords.longitude;
+
+                            console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
+
+                            await html5QrCode.stop().then(() => {
+                                //console.log("Scanner stopped. Submit form...");
+                                document.getElementById('scanForm').submit();
+                            }).catch((err) => {
+                                alert("Gagal menghentikan scanner: " + err);
+                                isScanned = false;
+                            });
+                        }, function (error) {
+                            alert('Gagal mendapatkan lokasi: ' + error.message);
+                            isScanned = false;
+                        });
+                    } else {
+                        alert("Geolocation tidak didukung oleh browser.");
+                        isScanned = false;
+                    }
+                },
+                errorMessage => {
+                    // console.log("error: ", errorMessage);
+                }
+            ).catch(err => {
+                alert("Gagal memulai kamera: " + err);
+            });
+        });
+
 </script>
 @endpush
