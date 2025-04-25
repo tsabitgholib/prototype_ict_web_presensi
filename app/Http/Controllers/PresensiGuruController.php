@@ -59,7 +59,7 @@ class PresensiGuruController extends Controller
         // }
         
         if ($sudahPresensi) {
-            return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
+            return redirect()->back()->with('warning', $request->qr_code . ', sudah presensi hari ini!');
         }
         
         Presensi::create([
