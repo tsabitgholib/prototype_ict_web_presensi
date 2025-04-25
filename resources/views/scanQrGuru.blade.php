@@ -66,7 +66,7 @@
             <tbody>
                 @forelse($presensis as $a)
                 <tr>
-                    <td>{{ $a->user->name }}</td>
+                    <td>{{ $a->qr_code }}</td>
                     <td>{{ $a->created_at }}</td>
                 </tr>
                 @empty
