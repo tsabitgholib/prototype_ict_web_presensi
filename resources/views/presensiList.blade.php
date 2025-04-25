@@ -42,6 +42,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>Nama</th>
+                    <th>qr</th>
                     <th>Waktu</th>
                 </tr>
             </thead>
@@ -49,6 +50,7 @@
                 @forelse($presensis as $p)
                 <tr>
                     <td>{{ $p->user->name }}</td>
+                    <td>{{ $p->qr_code }}</td>
                     <td>{{ $p->created_at }}</td>
                 </tr>
                 @empty
