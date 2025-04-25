@@ -34,7 +34,7 @@ class PresensiSiswaController extends Controller
         $longitudeUser = $request->longitude;
 
         $jarak = $this->haversine($this->latitudeSekolah, $this->longitudeSekolah, $latitudeUser, $longitudeUser);
-    
+
         $sudahPresensi = Presensi::where('user_id', $user->id)
             ->whereDate('created_at', today())
             ->exists();
@@ -46,7 +46,7 @@ class PresensiSiswaController extends Controller
         if ($sudahPresensi) {
             return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
         }
-        
+
         Presensi::create([
             'user_id' => $user->id,
             'qr_code' => $request->qr_code,
@@ -54,7 +54,7 @@ class PresensiSiswaController extends Controller
             'longitude' => $request->longitude,
             'created_at' => now(),
         ]);
-    
+
         return redirect()->route('presensi.list.siswa')->with('success', 'Presensi berhasil!');
 
 
@@ -89,13 +89,24 @@ class PresensiSiswaController extends Controller
 
         // return redirect()->route('presensi.siswa')->with('success', 'Presensi berhasil!');
     }
-    
+
 
     public function presensiListSiswa()
     {
-        $presensis = Presensi::with('user')->latest()->get();
+        $user = auth()->user();
+
+        if ($user->role === 'Guru') {
+            $presensis = Presensi::with('user')->latest()->get();
+        } else {
+            $presensis = Presensi::with('user')
+                ->where('user_id', $user->id)
+                ->latest()
+                ->get();
+        }
+
         return view('presensiList', compact('presensis'));
     }
+
 
     /**
      * Haversine formula untuk menghitung jarak antara dua koordinat geografis

@@ -115,7 +115,6 @@
 
 //             document.getElementById('qr_code').value = qrCodeMessage;
 
-//             // Hapus bagian geolocation karena kita akan menggunakan GeoIP
 //             document.getElementById('latitude').value = '';
 //             document.getElementById('longitude').value = '';
 

@@ -116,10 +116,8 @@
                     console.log("Lokasi: ", position.coords.latitude, position.coords.longitude);
 
                     await html5QrCode.stop().then(() => {
-                        // Submit form dan mulai scan kembali setelah form dikirim
                         document.getElementById('scanForm').submit();
                         
-                        // Setelah form disubmit, reset isScanned dan mulai scan lagi
                         setTimeout(() => {
                             isScanned = false;
                             html5QrCode.start(
@@ -162,7 +160,7 @@
                                     }
                                 }
                             );
-                        }, 1000); // Beri waktu sedikit untuk memastikan form ter-submit
+                        }, 1000);
                     }).catch((err) => {
                         alert("Gagal menghentikan scanner: " + err);
                         isScanned = false;
