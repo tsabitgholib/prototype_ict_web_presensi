@@ -50,13 +50,13 @@ class PresensiGuruController extends Controller
 
         $jarak = $this->haversine($this->latitudeSekolah, $this->longitudeSekolah, $latitudeUser, $longitudeUser);
     
-        $sudahPresensi = Presensi::where('user_id', $user->id)
+        $sudahPresensi = Presensi::where('qr_code', $request->qr_code)
             ->whereDate('created_at', today())
             ->exists();
 
-        if ($jarak > $this->radiusMax) {
-            return redirect()->back()->with('warning', 'Anda terlalu jauh dari lokasi presensi!');
-        }
+        // if ($jarak > $this->radiusMax) {
+        //     return redirect()->back()->with('warning', 'Anda terlalu jauh dari lokasi presensi!');
+        // }
         
         if ($sudahPresensi) {
             return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
