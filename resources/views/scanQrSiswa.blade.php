@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
-    const facingMode = isMobileDevice() ? "environment" : "user"; // HP = kamera belakang, Laptop = kamera depan
+    const facingMode = isMobileDevice() ? "environment" : "user";
 
     html5QrCode.start(
         { facingMode: facingMode },
@@ -91,7 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         },
         errorMessage => {
-            // Handle scan error di sini kalau mau
             // console.log("Scan error: ", errorMessage);
         }
     ).catch(err => {
