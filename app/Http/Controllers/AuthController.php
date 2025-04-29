@@ -36,16 +36,16 @@ class AuthController extends Controller
                 return back()->withErrors(['identifier' => 'NIS tidak ditemukan.'])->withInput();
             }
     
-            Auth::guard('web')->login($user);
+            Auth::login($user);
             return redirect()->route('scan.qr.siswa');
     
-        } elseif ($request->tipe_login === 'guru') {
+        } else if ($request->tipe_login === 'guru') {
             $guru = Guru::where('nip', $request->identifier)->first();
             if (!$guru) {
-                return back()->withErrors(['identifier' => 'NIP tidak ditemukan.'])->withInput();
+                return back()->withErrors(['identifier' => 'NIK tidak ditemukan.'])->withInput();
             }
     
-            Auth::guard('guru')->login($guru);
+            Auth::guard('guru')->loginUsingId($guru->id);
             return redirect()->route('scan.qr.guru');
         }
     
