@@ -39,7 +39,7 @@ class PresensiGuruController extends Controller
 
     public function presensiGuru(Request $request)
     {
-        $guru = auth('guru')->user();
+        $guru = auth()->guard('guru')->user();
 
         $request->validate([
             'latitude' => 'required|numeric',
