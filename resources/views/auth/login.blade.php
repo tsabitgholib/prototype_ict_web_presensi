@@ -5,7 +5,6 @@
         <div class="modal-dialog modal-md">
             <div class="modal-content border-0">
                 <div class="modal-body text-center p-5">
-                    <!-- Logo -->
                     <div class="d-flex justify-content-center">
                         <img src="{{ asset('/images/logo1.png') }}" alt="Logo" class="mb-3" style="width: 150px; height: auto;">
                     </div>
@@ -13,7 +12,6 @@
 
                     <h4 class="mb-4 text-dark">Selamat Datang</h4>
 
-                    <!-- Error Alert -->
                     @if ($errors->any())
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <ul class="mb-0">
@@ -27,24 +25,25 @@
                     <form action="{{ route('login.post') }}" method="POST">
                         @csrf
                         <div class="mb-3 text-start">
-                            <label for="nis" class="form-label fw-bold">NIS</label>
-                            <input type="nis" class="form-control form-control-lg" name="nis" id="nis" placeholder="Masukkan NIS" value="{{ old('nis') }}" required>
+                            <label for="tipe_login" class="form-label fw-bold">Login Sebagai</label>
+                            <select class="form-control form-control-lg" name="tipe_login" id="tipe_login" required>
+                                <option value="siswa" {{ old('tipe_login') == 'siswa' ? 'selected' : '' }}>Siswa</option>
+                                <option value="guru" {{ old('tipe_login') == 'guru' ? 'selected' : '' }}>Guru</option>
+                            </select>
                         </div>
 
-                        {{-- <div class="mb-3 text-start">
-                            <label for="password" class="form-label fw-bold">Password</label>
-                            <input type="password" class="form-control form-control-lg" name="password" id="password" placeholder="Masukkan Password" required>
-                        </div> --}}
-
-                    <!-- Captcha -->
-                    <div class="mb-3 text-center">
-                        <div class="d-flex justify-content-center">
-                            <img src="{{ url('/captcha') }}" class="border rounded" style="height: 80px;">
+                        <div class="mb-3 text-start" id="input-id">
+                            <label for="identifier" class="form-label fw-bold">NIS</label>
+                            <input type="text" class="form-control form-control-lg" name="identifier" id="identifier" placeholder="Masukkan NIS atau NIK" value="{{ old('identifier') }}" required>
                         </div>
-                        <input type="text" class="form-control form-control-lg mt-3 text-center" name="captcha" placeholder="Masukkan Captcha" required>
-                    </div>
 
-
+                        <div class="mb-3 text-center">
+                            <div class="d-flex justify-content-center">
+                                <img src="{{ url('/captcha') }}" class="border rounded" style="height: 80px;">
+                            </div>
+                            <input type="text" class="form-control form-control-lg mt-3 text-center" name="captcha" placeholder="Masukkan Captcha" required>
+                        </div>
+                    
                         <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill mt-3">Login</button>
                     </form>
                 </div>
@@ -58,3 +57,10 @@
 </div>
 
 @endsection
+
+<script>
+    document.getElementById('tipe_login').addEventListener('change', function () {
+        const label = document.querySelector('label[for="identifier"]');
+        label.textContent = this.value === 'guru' ? 'NIK' : 'NIS';
+    });
+</script>

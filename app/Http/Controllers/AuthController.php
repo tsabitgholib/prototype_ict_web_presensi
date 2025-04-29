@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guru;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,29 +18,38 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nis' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (!User::where('nis', $value)->exists()) {
-                        $fail('NIS tidak ditemukan.');
-                    }
-                }
-            ],
-            'captcha' => 'required|captcha'
+            'tipe_login' => 'required|in:siswa,guru',
+            'identifier' => 'required|string',
+            'captcha' => 'required|captcha',
         ], [
-            'nis.required' => 'NIS wajib diisi.',
-            'captcha.captcha' => 'Captcha tidak valid.'
+            'identifier.required' => 'NIS/NIK wajib diisi.',
+            'captcha.captcha' => 'Captcha tidak valid.',
         ]);
     
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
     
-        $user = User::where('nis', $request->nis)->first();
+        if ($request->tipe_login === 'siswa') {
+            $user = User::where('nis', $request->identifier)->first();
+            if (!$user) {
+                return back()->withErrors(['identifier' => 'NIS tidak ditemukan.'])->withInput();
+            }
     
-        Auth::login($user);
-        return redirect()->route('scan.qr.siswa');
+            Auth::login($user);
+            return redirect()->route('scan.qr.siswa');
+    
+        } else if ($request->tipe_login === 'guru') {
+            $guru = Guru::where('nik', $request->identifier)->first();
+            if (!$guru) {
+                return back()->withErrors(['identifier' => 'NIK tidak ditemukan.'])->withInput();
+            }
+    
+            Auth::loginUsingId($guru->id);
+            return redirect()->route('scan.qr.guru');
+        }
+    
+        return back()->withErrors(['tipe_login' => 'Tipe login tidak valid.'])->withInput();
     }
     
     
