@@ -33,11 +33,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/presensi-list-siswa', [PresensiSiswaController::class, 'presensiListSiswa'])->name('presensi.list.siswa');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware('auth:guru')->group(function () {
     Route::get('/scan-qr-guru', [PresensiGuruController::class, 'scanQrGuru'])->name('scan.qr.guru');
     Route::post('/presensi-guru', [PresensiGuruController::class, 'presensiGuru'])->name('presensi.guru');
     Route::get('/presensi-list-guru', [PresensiGuruController::class, 'presensiListGuru'])->name('presensi.list.guru');
 });
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/presensi-map', [PresensiMapController::class, 'create'])->name('presensi.create');
@@ -47,3 +48,4 @@ Route::middleware(['auth'])->group(function () {
 // Route::get('/refresh-captcha', function() {
 //     return response()->json(['captcha' => Captcha::img()]);
 // });
+
