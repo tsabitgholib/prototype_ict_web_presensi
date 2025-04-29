@@ -16,6 +16,7 @@ class Presensi extends Model
         'latitude', 
         'longitude',
         'guru_id',
+        'metode',
     ];
 
     public function user(): BelongsTo
