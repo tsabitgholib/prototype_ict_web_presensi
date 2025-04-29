@@ -22,7 +22,7 @@ class AuthController extends Controller
             'identifier' => 'required|string',
             'captcha' => 'required|captcha',
         ], [
-            'identifier.required' => 'NIS/NIK wajib diisi.',
+            'identifier.required' => 'NIS/NIP wajib diisi.',
             'captcha.captcha' => 'Captcha tidak valid.',
         ]);
     
@@ -40,7 +40,7 @@ class AuthController extends Controller
             return redirect()->route('scan.qr.siswa');
     
         } else if ($request->tipe_login === 'guru') {
-            $guru = Guru::where('nik', $request->identifier)->first();
+            $guru = Guru::where('nip', $request->identifier)->first();
             if (!$guru) {
                 return back()->withErrors(['identifier' => 'NIK tidak ditemukan.'])->withInput();
             }

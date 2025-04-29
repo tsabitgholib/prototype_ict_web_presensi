@@ -33,8 +33,8 @@
                         </div>
 
                         <div class="mb-3 text-start" id="input-id">
-                            <label for="identifier" class="form-label fw-bold">NIS</label>
-                            <input type="text" class="form-control form-control-lg" name="identifier" id="identifier" placeholder="Masukkan NIS atau NIK" value="{{ old('identifier') }}" required>
+                            <label for="identifier" class="form-label fw-bold">NIS/NIP</label>
+                            <input type="text" class="form-control form-control-lg" name="identifier" id="identifier" placeholder="Masukkan NIS atau NIP" value="{{ old('identifier') }}" required>
                         </div>
 
                         <div class="mb-3 text-center">
@@ -61,6 +61,6 @@
 <script>
     document.getElementById('tipe_login').addEventListener('change', function () {
         const label = document.querySelector('label[for="identifier"]');
-        label.textContent = this.value === 'guru' ? 'NIK' : 'NIS';
+        label.textContent = this.value === 'guru' ? 'NIP' : 'NIS';
     });
 </script>
