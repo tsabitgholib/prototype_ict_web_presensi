@@ -52,6 +52,7 @@ class PresensiSiswaController extends Controller
             'qr_code' => $request->qr_code,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
+            'metode' => 'SCAN SISWA',
             'created_at' => now(),
         ]);
 
