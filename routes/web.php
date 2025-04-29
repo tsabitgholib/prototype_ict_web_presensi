@@ -47,4 +47,3 @@ Route::middleware(['auth'])->group(function () {
 // Route::get('/refresh-captcha', function() {
 //     return response()->json(['captcha' => Captcha::img()]);
 // });
-

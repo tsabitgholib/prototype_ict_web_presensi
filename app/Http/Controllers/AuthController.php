@@ -17,35 +17,47 @@ class AuthController extends Controller
 
     public function authenticate(Request $request)
     {
-        if ($request->tipe_login == 'guru') {
-            $guru = Guru::where('nip', $request->identifier)->first();
-
-            if (!$guru) {
-                return back()->withErrors(['identifier' => 'NIP tidak ditemukan.']);
+        $validator = Validator::make($request->all(), [
+            'tipe_login' => 'required|in:siswa,guru',
+            'identifier' => 'required|string',
+            'captcha' => 'required|captcha',
+        ], [
+            'identifier.required' => 'NIS/NIP wajib diisi.',
+            'captcha.captcha' => 'Captcha tidak valid.',
+        ]);
+    
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+    
+        if ($request->tipe_login === 'siswa') {
+            $user = User::where('nis', $request->identifier)->first();
+            if (!$user) {
+                return back()->withErrors(['identifier' => 'NIS tidak ditemukan.'])->withInput();
             }
-
+    
+            Auth::guard('web')->login($user);
+            return redirect()->route('scan.qr.siswa');
+    
+        } elseif ($request->tipe_login === 'guru') {
+            $guru = Guru::where('nip', $request->identifier)->first();
+            if (!$guru) {
+                return back()->withErrors(['identifier' => 'NIP tidak ditemukan.'])->withInput();
+            }
+    
             Auth::guard('guru')->login($guru);
-
             return redirect()->route('scan.qr.guru');
         }
-
-        $user = User::where('nis', $request->identifier)->first();
-
-        if (!$user) {
-            return back()->withErrors(['identifier' => 'NIS tidak ditemukan.']);
-        }
-
-        Auth::login($user);
-
-        return redirect()->route('scan.qr.siswa');
+    
+        return back()->withErrors(['tipe_login' => 'Tipe login tidak valid.'])->withInput();
     }
-
-
-
+    
+    
 
     public function logout()
     {
         Auth::logout();
         return redirect()->route('login');
     }
+
 }
