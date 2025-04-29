@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Presensi;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,11 +39,12 @@ class PresensiGuruController extends Controller
 
     public function presensiGuru(Request $request)
     {
-        $user = auth()->user();
+        $guru = auth('guru')->user();
 
         $request->validate([
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'qr_code' => 'required|string',
         ]);
 
         $latitudeUser = $request->latitude;
@@ -61,12 +63,20 @@ class PresensiGuruController extends Controller
         if ($sudahPresensi) {
             return redirect()->back()->with('warning', $request->qr_code . ', sudah presensi hari ini!');
         }
+
+        $user = User::where('nis', $request->qr_code)->first();
+
+        if (!$user) {
+            return redirect()->back()->with('warning', 'Siswa dengan NIS ' . $request->qr_code . ' tidak ditemukan!');
+        }
         
         Presensi::create([
             'user_id' => $user->id,
             'qr_code' => $request->qr_code,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
+            'metode' => 'SCAN GURU',
+            'id_guru' => $guru->id,
             'created_at' => now(),
         ]);
     
@@ -78,7 +88,7 @@ class PresensiGuruController extends Controller
 
     public function PresensiListGuru(Request $request)
     {
-        $query = Presensi::with('user')->latest();
+        $query = Presensi::with('guru')->latest();
     
         if ($request->filled('start_date') && $request->filled('end_date')) {
             $query->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);

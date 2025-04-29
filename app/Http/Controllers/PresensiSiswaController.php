@@ -44,7 +44,7 @@ class PresensiSiswaController extends Controller
         // }
 
         if ($sudahPresensi) {
-            return redirect()->back()->with('warning', $user->name . ', Anda sudah presensi hari ini!');
+            return redirect()->back()->with('warning', $user->nama . ', Anda sudah presensi hari ini!');
         }
 
         Presensi::create([
@@ -95,14 +95,10 @@ class PresensiSiswaController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role === 'Guru') {
-            $presensis = Presensi::with('user')->latest()->get();
-        } else {
-            $presensis = Presensi::with('user')
-                ->where('user_id', $user->id)
-                ->latest()
-                ->get();
-        }
+        $presensis = Presensi::with('user')
+            ->where('user_id', $user->id)
+            ->latest()
+            ->get();
 
         return view('presensiList', compact('presensis'));
     }

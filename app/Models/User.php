@@ -19,11 +19,11 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'nama',
         'nis',
         'email',
+        'kelas',
         'password',
-        'role',
     ];
 
     /**
@@ -45,7 +45,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function absensis():HasMany{
+    public function presensis():HasMany{
         return $this->hasMany((Presensi::class));
     }
 }

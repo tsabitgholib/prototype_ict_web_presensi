@@ -10,11 +10,21 @@ class Presensi extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'qr_code', 'latitude', 'longitude'];
+    protected $fillable = [
+        'user_id', 
+        'qr_code', 
+        'latitude', 
+        'longitude',
+        'guru_id',
+    ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+    public function guru(): BelongsTo
+    {
+        return $this->belongsTo(Guru::class);
     }
 
 }
