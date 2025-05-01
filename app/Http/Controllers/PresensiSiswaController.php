@@ -94,16 +94,20 @@ class PresensiSiswaController extends Controller
 
     public function presensiListSiswa()
     {
-        $user = auth()->user();
-
-        $presensis = Presensi::with('user')
-            ->where('user_id', $user->id)
-            ->latest()
-            ->get();
-
+        if (auth()->check()) {
+            $user = auth()->user();
+            $presensis = Presensi::with('user')
+                ->where('user_id', $user->id)
+                ->latest()
+                ->get();
+        } elseif (auth()->guard('guru')->check()) {
+            $presensis = Presensi::with('user')->latest()->get();
+        }
+    
         return view('presensiList', compact('presensis'));
     }
-
+    
+    
 
     /**
      * Haversine formula untuk menghitung jarak antara dua koordinat geografis

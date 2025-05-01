@@ -17,6 +17,10 @@ class AuthController extends Controller
 
     public function authenticate(Request $request)
     {
+
+        Auth::logout();
+        Auth::guard('guru')->logout();
+
         $validator = Validator::make($request->all(), [
             'tipe_login' => 'required|in:siswa,guru',
             'identifier' => 'required|string',
